@@ -2,10 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 use Illuminate\Database\Eloquent\Model;
 
 class Penyakit extends Model
 {
-    use HasFactory;
+    protected $fillable = ['nama_penyakit', 'kode_penyakit']; // Atau gunakan $guarded jika lebih sesuai
+
+    // Definisikan relasi dengan Gejala
+    public function gejalas()
+    {
+        return $this->belongsToMany(Gejala::class);
+    }
 }
