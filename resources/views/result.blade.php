@@ -6,17 +6,25 @@
             <div class="card-body">
                 <h1 class="text-center mb-4">Hasil Klasifikasi Penyakit</h1>
                 <hr>
-                <div>
-                    @if ($m3['biasa'] > $m3['teta'])
-                        <h3>Penyakit yang mungkin terjadi:</h3>
-                        <ul>
-                            <li>Penyakit 1</li>
-                            <li>Penyakit 2</li>
-                            <!-- Tambahkan daftar penyakit berdasarkan klasifikasi m3 -->
-                        </ul>
-                    @else
-                        <p>Tidak ada hasil klasifikasi yang tersedia.</p>
+                <div class="mb-4">
+                    @if ($isp2)
+                        <h4>Penyakit Ginjal Tidak Kronis:</h4>
+                        <?php $persentaseBiasa = number_format($m3['biasa'] * 100, 2); ?>
+
+                        <div class="progress" style="height: 30px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: {{ $persentaseBiasa }}%;"
+                                aria-valuenow="{{ $persentaseBiasa }}" aria-valuemin="0" aria-valuemax="100">
+                                {{ $persentaseBiasa }}%</div>
+                        @else
+                            <h4>Penyakit Ginjal Kronis:</h4>
+                            <?php $persentaseBiasa = number_format($m3['biasa'] * 100, 2); ?>
+                            <div class="progress" style="height: 30px;">
+                                <div class="progress-bar bg-success" role="progressbar"
+                                    style="width: {{ $persentaseBiasa }}%;" aria-valuenow="{{ $persentaseBiasa }}"
+                                    aria-valuemin="0" aria-valuemax="100">
+                                    {{ $persentaseBiasa }}%</div>
                     @endif
+
                 </div>
             </div>
         </div>

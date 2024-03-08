@@ -6,8 +6,31 @@ use Illuminate\Http\Request;
 
 class KlasifikasiController extends Controller
 {
+    public function home()
+    {
+        $gejala = [
+            ['kode' => 'G1', 'gejala' => 'Adanya darah dalam urine'],
+            ['kode' => 'G2', 'gejala' => 'Sesak Nafas'],
+            ['kode' => 'G3', 'gejala' => 'Lemas'],
+            ['kode' => 'G4', 'gejala' => 'Nyeri Pada Ulu Hati'],
+            ['kode' => 'G5', 'gejala' => 'Merasa Lapar dan Kelelahan'],
+            ['kode' => 'G6', 'gejala' => 'Merasa Haus berlebihan'],
+            ['kode' => 'G7', 'gejala' => 'Penglihatan Kabur'],
+            ['kode' => 'G8', 'gejala' => 'Demam'],
+            ['kode' => 'G9', 'gejala' => 'Tekanan Darah Rendah'],
+            ['kode' => 'G10', 'gejala' => 'Sakit Kepala'],
+            ['kode' => 'G11', 'gejala' => 'Denyut Jantung Cepat'],
+            ['kode' => 'G12', 'gejala' => 'Nyeri Punggung'],
+        ];
+
+        return view('home', compact('gejala'));
+    }
     public function classify(Request $request)
     {
+        $request->validate([
+            'gejala' => 'required|array',
+            'gejala.*' => 'required|string|in:G1,G2,G3,G4,G5,G6,G7,G8,G9,G10,G11,G12', // Pastikan setidaknya satu gejala dari G1 hingga G6 dipilih
+        ]);
         // Gejala dan bobotnya
         $gejala = [
             'G1' => 0.95,
@@ -28,29 +51,24 @@ class KlasifikasiController extends Controller
         $p1 = ['G1', 'G2', 'G3', 'G4'];
         $p2 = ['G5', 'G6', 'G7', 'G8', 'G9', 'G10', 'G11', 'G12'];
 
-        // Validasi input
-        $request->validate([
-            'gejala' => 'required|array',
-            'gejala.*' => 'required|string|exists:gejalas,kode', // pastikan gejala yang dikirim ada di database
-        ]);
-
-        // Ambil gejala dari request
         $input_user = $request->gejala;
-
-        // Inisialisasi m3 dengan m1
-        $m3 = ['biasa' => $gejala[$input_user[0]], 'teta' => 1 - $gejala[$input_user[0]]];
-
-        // Iterasi melalui sisa input
-        for ($i = 1; $i < count($input_user); $i++) {
-            // Hitung m3 baru berdasarkan m3 saat ini dan input berikutnya
-            $m3 = $this->calculate_m3($m3, $gejala, $input_user[$i], $p1, $p2);
-        }
-
-        // Kembalikan hasil klasifikasi sebagai respons JSON
-        return redirect()->route('result', compact('m3'));
+        $result = $this->calculate($gejala, $p1, $p2, $input_user);
+        $m3 = $result['m3'];
+        $isp2 = $result['isp2'];
+        return view('result', compact('m3', 'isp2'));
     }
 
-    private function calculate_m3($m3, $gejala, $input, $p1, $p2)
+    public function check_p2_only($input_user, $p1)
+    {
+        foreach ($input_user as $input) {
+            if (in_array($input, $p1)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public function calculate_m3($m3, $gejala, $input, $p1, $p2)
     {
         $m2 = ['biasa' => $gejala[$input], 'teta' => 1 - $gejala[$input]];
 
@@ -58,7 +76,6 @@ class KlasifikasiController extends Controller
         $m3_p01 = $m3['biasa'] * $m2['teta'];
         $m3_p02 = $m3['teta'] * $m2['biasa'];
         $m3_theta = $m3['teta'] * $m2['teta'];
-
         if (in_array($input, $p1)) {
             return ['biasa' => $conflict + $m3_p01 + $m3_p02, 'teta' => $m3_theta];
         } elseif (in_array($input, $p2)) {
@@ -66,32 +83,36 @@ class KlasifikasiController extends Controller
         }
     }
 
-    public function home()
+    public function calcultate_m3_p2($m3, $gejala, $input, $p2, $p1)
     {
-        $gejala = [
-            ['kode' => 'G1', 'gejala' => 'Adanya darah dalam urine'],
-            ['kode' => 'G2', 'gejala' => 'Sesak Nafas'],
-            ['kode' => 'G3', 'gejala' => 'Lemas'],
-            ['kode' => 'G4', 'gejala' => 'Nyeri Pada Ulu Hati'],
-            ['kode' => 'G5', 'gejala' => 'Merasa Lapar dan Kelelahan'],
-            ['kode' => 'G6', 'gejala' => 'Merasa Haus berlebihan'],
-            ['kode' => 'G7', 'gejala' => 'Penglihatan Kabur'],
-            ['kode' => 'G8', 'gejala' => 'Demam'],
-            ['kode' => 'G9', 'gejala' => 'Tekanan Darah Rendah'],
-            ['kode' => 'G10', 'gejala' => 'Sakit Kepala'],
-            ['kode' => 'G11', 'gejala' => 'Denyut Jantung Cepat'],
-            ['kode' => 'G12', 'gejala' => 'Nyeri Punggung'],
-        ];
+        $m2 = ['biasa' => $gejala[$input], 'teta' => 1 - $gejala[$input]];
 
-        // Mengirim variabel $gejala ke view 'home'
-        return view('home', compact('gejala'));
+        $conflict = $m3['biasa'] * $m2['biasa'];
+        $m3_p01 = $m3['biasa'] * $m2['teta'];
+        $m3_p02 = $m3['teta'] * $m2['biasa'];
+        $m3_theta = $m3['teta'] * $m2['teta'];
+        return ['biasa' => $conflict + $m3_p01 + $m3_p02, 'teta' => $m3_theta];
     }
-    public function result(Request $request)
-    {
-        // Ambil data hasil dari request
-        $m3 = $request->m3;
 
-        // Tampilkan halaman hasil klasifikasi dengan membawa data hasil
-        return view('result', compact('m3'));
+    public function calculate($gejala, $p1, $p2, $input_user)
+    {
+        $m3 = ['biasa' => $gejala[$input_user[0]], 'teta' => 1 - $gejala[$input_user[0]]];
+        $isp2 = false;
+
+        if ($this->check_p2_only($input_user, $p1)) {
+            for ($i = 1; $i < count($input_user); $i++) {
+                $m3 = $this->calcultate_m3_p2($m3, $gejala, $input_user[$i], $p2, $p1);
+            }
+            $isp2 = true;
+        } else {
+            for ($i = 1; $i < count($input_user); $i++) {
+                $m3 = $this->calculate_m3($m3, $gejala, $input_user[$i], $p1, $p2);
+            }
+        }
+
+        return [
+            'm3' => $m3,
+            'isp2' => $isp2
+        ];
     }
 }
