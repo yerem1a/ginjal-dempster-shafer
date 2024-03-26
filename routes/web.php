@@ -19,7 +19,7 @@ Route::get('/', [AuthController::class, 'showLoginForm'])->name('login');
 Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [AuthController::class, 'register']);
 Route::get('/home', [KlasifikasiController::class, 'home'])->name('home');
-Route::post('/classify', [KlasifikasiController::class, 'classify'])->name('classify');
+Route::post('/classify', [KlasifikasiController::class, 'classifyOke'])->name('classify');
 Route::get('/result', [KlasifikasiController::class, 'result'])->name('result');
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');

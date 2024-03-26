@@ -7,9 +7,9 @@
                 <h1 class="text-center mb-4">Hasil Klasifikasi Penyakit</h1>
                 <hr>
                 <div class="mb-4">
-                    @if ($isp2)
+                    @if ($res['P01'] > $res['P02'])
                         <h4>Penyakit Ginjal Tidak Kronis:</h4>
-                        <?php $persentaseBiasa = number_format($m3['biasa'] * 100, 2); ?>
+                        <?php $persentaseBiasa = number_format($res['P01'] * 100, 2); ?>
 
                         <div class="progress" style="height: 30px;">
                             <div class="progress-bar bg-success" role="progressbar" style="width: {{ $persentaseBiasa }}%;"
@@ -17,7 +17,7 @@
                                 {{ $persentaseBiasa }}%</div>
                         @else
                             <h4>Penyakit Ginjal Kronis:</h4>
-                            <?php $persentaseBiasa = number_format($m3['biasa'] * 100, 2); ?>
+                            <?php $persentaseBiasa = number_format($res['P02'] * 100, 2); ?>
                             <div class="progress" style="height: 30px;">
                                 <div class="progress-bar bg-success" role="progressbar"
                                     style="width: {{ $persentaseBiasa }}%;" aria-valuenow="{{ $persentaseBiasa }}"

@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="{{ asset('assets') }}/plugins/fontawesome-free/css/all.min.css">
     <!-- Theme style -->
     <link rel="stylesheet" href="{{ asset('assets') }}/dist/css/adminlte.min.css">
+
 </head>
 
 <body class="hold-transition sidebar-mini">
@@ -58,7 +59,8 @@
             </a>
 
             <!-- Sidebar -->
-            <div class="sidebar">
+            <div
+                class="sidebar os-host os-theme-light os-host-overflow os-host-overflow-y os-host-resize-disabled os-host-scrollbar-horizontal-hidden os-host-transition">
 
                 <!-- Sidebar Menu -->
                 <nav class="mt-2">
@@ -85,17 +87,6 @@
                         </li>
                     </ul>
 
-                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
-                        data-accordion="false">
-                        <li class="nav-item">
-                            <a href="{{ route('home') }}" class="nav-link">
-                                <i class="nav-icon fas fa-table"></i>
-                                <p>
-                                    Riwayat Gejala
-                                </p>
-                            </a>
-                        </li>
-                    </ul>
                 </nav>
                 <!-- /.sidebar-menu -->
             </div>
